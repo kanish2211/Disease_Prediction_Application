@@ -6,7 +6,7 @@ from flask import Flask, request, jsonify, make_response
 import joblib
 import pandas as pd
 import numpy as np
-from flask_cors import CORS, CORSPolicy
+from flask_cors import CORS
 import matplotlib.pyplot as plt
 from sklearn import metrics
 from sklearn.model_selection import train_test_split, KFold, cross_val_score, GridSearchCV
@@ -22,12 +22,12 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
 
 app = Flask(__name__, static_url_path='', static_folder='static')
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
+CORS(app)
 
 # %%
 df = pd.read_csv(
     './dataset.csv')
-df = shuffle(df, random_state=42)
+df = shuffle(df, random_state=43)
 df.head()
 
 # %% [markdown]
@@ -283,9 +283,11 @@ loaded_rf = joblib.load("random_forest.joblib")
 # %%
 
 
-def predd(x, S1=0, S2=0, S3=0, S4=0, S5=0, S6=0, S7=0, S8=0, S9=0, S10=0, S11=0, S12=0, S13=0, S14=0, S15=0, S16=0, S17=0):
-    psymptoms = [S1, S2, S3, S4, S5, S6, S7, S8,
-                 S9, S10, S11, S12, S13, S14, S15, S16, S17]
+def predd(x, symptoms):
+
+    psymptoms = [0]*17
+    for i in range(len(symptoms)):
+        psymptoms[i] = symptoms[i]
     a = np.array(df1["Symptom"])
     b = np.array(df1["weight"])
     for j in range(len(psymptoms)):
@@ -302,7 +304,7 @@ def predd(x, S1=0, S2=0, S3=0, S4=0, S5=0, S6=0, S7=0, S8=0, S9=0, S10=0, S11=0,
     for i in range(1, len(ektra7at.iloc[c])):
         precuation_list.append(ektra7at.iloc[c, i])
     print("The Disease Name: ", pred2[0])
-    print("The Disease Description: ", disp)
+    print("The Disease Discription: ", disp)
     print("Recommended Things to do at home: ")
     for i in precuation_list:
         print(i)
@@ -361,25 +363,23 @@ for index, data in enumerate(Standard_Deviation):
              s=round(data, 2), fontdict=dict(fontsize=8))
 
 
-@app.route('/predict', methods=['POST', 'OPTIONS'])
+@app.route('/predict', methods=['POST'])
 def predict():
-    if request.method == 'OPTIONS':
-        # Handle CORS pre-flight request
-        response = make_response()
+    if request.method == 'POST':
+        try:
+            data = request.get_json()
+            symptoms = data.get("symptoms")
+            pred_result = predd(rnd_forest, symptoms)
+            response = jsonify(pred_result)
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            response.headers.add(
+                "Access-Control-Allow-Headers", "Content-Type, Authorization")
+            response.headers.add("Access-Control-Allow-Methods", "POST")
+            return response
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
     else:
-        # Handle the actual POST request
-        data = request.get_json()
-        symptoms = data.get("symptoms")
-        pred_result = predd(rnd_forest, symptoms)
-        response = jsonify(pred_result)
-
-    response.headers.add("Access-Control-Allow-Origin",
-                         "http://localhost:3000")
-    response.headers.add("Access-Control-Allow-Headers",
-                         "Content-Type, Authorization")
-    response.headers.add("Access-Control-Allow-Methods", "POST")
-
-    return response
+        return jsonify({})
 
 
 try:

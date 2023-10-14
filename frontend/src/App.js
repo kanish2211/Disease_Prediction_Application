@@ -1,95 +1,81 @@
-// React component
-import React, { useEffect, useState } from 'react';
-import axios from './axios.config';
-import Select from 'react-select';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import Select from "react-select";
+import "tailwindcss/tailwind.css";
 
 function App() {
   const [symptoms, setSymptoms] = useState([]);
+  const [selectedSymptoms, setSelectedSymptoms] = useState([]);
   const [result, setResult] = useState({});
-  const [sList, setSList] = useState([]);
-  const [selectedOptions, setSelectedOptions] = useState([]);
-  const options = 
-    sList.map((item)=>({value:item.Symptom,label:item.Symptom}))
-   
-    
-  ;
-  const handleSelectChange = (selectedValues) => {
-    setSelectedOptions(selectedValues);
-  };
 
-  const clearAll = () => {
-    setSelectedOptions([]);
-  };
-
-  const removeOption = (option) => {
-    setSelectedOptions(selectedOptions.filter((selected) => selected !== option));
+  const handleSymptomSelect = (selectedOptions) => {
+    setSelectedSymptoms(selectedOptions);
   };
 
   const handlePredict = () => {
-    const selectedValues = selectedOptions.map((option) => option.value);
-    axios.post('http://localhost:5000/predict', {symptoms: selectedValues })
-      .then(response => {
+    const selectedValues = selectedSymptoms.map((option) => option.value);
+    axios
+      .post("http://127.0.0.1:5000/predict", { symptoms: selectedValues })
+      .then((response) => {
         setResult(response.data);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error);
       });
   };
-  const getSymptoms = () => {
-    axios.get('http://localhost:5000/symptoms',)
-      .then(response => {
-        setSList(response.data);
-      })
-      .catch(error => {
-        console.error(error);
-      });
-  };
+
   useEffect(() => {
-   getSymptoms()
-}, [])
+    // Fetch symptoms from your API endpoint
+    axios
+      .get("http://127.0.0.1:5000/symptoms")
+      .then((response) => {
+        const formattedSymptoms = response.data.map((symptom) => ({
+          value: symptom.Symptom,
+          label: symptom.Symptom,
+        }));
+        setSymptoms(formattedSymptoms);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
+
   return (
-    <div>
-      <h1>Health Diagnosis</h1>
-      <div>
-      <Select
-        isMulti
-        options={options}
-        value={selectedOptions}
-        onChange={handleSelectChange}
-        isSearchable  // Enable search
-        placeholder="Select options..."
-      />
-      <button onClick={clearAll}>Clear All</button>
-      <div>
-        {selectedOptions.map((option) => (
-          <span key={option.value}>
-            {option.label}
-            <button onClick={() => removeOption(option)}>Remove</button>
-          </span>
-        ))}
+    <div className="max-w-xl mx-auto p-4">
+      <h1 className="text-2xl mb-4">Health Diagnosis</h1>
+      <div className="mb-4">
+        <Select
+          isMulti
+          options={symptoms}
+          value={selectedSymptoms}
+          onChange={handleSymptomSelect}
+          placeholder="Select symptoms..."
+        />
       </div>
-      <button onClick={handlePredict}>Submit</button> {/* Add a Submit button */}
-    </div>
-      {/* <div>
-        <label>Enter Symptoms:</label>
-        {sList.map((item,i)=>{
-          return(
-            <div style={{display:'flex'}}>
-              <p>{item.Symptom.replaceAll('_',' ')}</p>
-              <input type='checkbox'
-          value={i}
-          onChange={(e) => setSymptoms([...symptoms+e.target.value])}/>
-            </div>
-          )
-        })}
-       
-      </div> */}
-      <button onClick={handlePredict}>Predict</button>
+      <button
+        className="bg-blue-500 text-white py-2 px-4 rounded-md mr-2"
+        onClick={handlePredict}
+      >
+        Predict
+      </button>
       {result.Disease && (
-        <div>
-          <h2>Disease: {result.Disease}</h2>
-          <p>Description: {result.Disease_Description}</p>
-          <p>Precautions: {result.Precautions.join(', ')}</p>
+        <div className="mt-4 bg-gray-100 p-4 rounded-md">
+          <h2 className="text-lg font-semibold text-indigo-700">
+            Disease: {result.Disease}
+          </h2>
+          <p className="mb-2 text-gray-700">
+            Description: {result.Disease_Description}
+          </p>
+          <div className="mb-2 text-gray-700">
+            <span className="text-indigo-700 font-semibold">Precautions:</span>
+          </div>
+          <ul className="list-disc ml-4">
+            {result.Precautions.map((precaution, index) => (
+              <li key={index} className="text-gray-700">
+                {precaution}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>
