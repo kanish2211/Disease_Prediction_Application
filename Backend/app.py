@@ -21,8 +21,11 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
 
-app = Flask(__name__, static_url_path='', static_folder='static')
-CORS(app)
+app = Flask(__name__, static_url_path='',
+            static_folder='static')
+CORS(app, resources={
+     r"/api/*": {"origins": "http://localhost:3000"}})
+
 
 # %%
 df = pd.read_csv(
@@ -254,14 +257,14 @@ print("Mean Accuracy: %.3f%%, Standard Deviation: (%.2f%%)" %
 
 # %%
 discrp = pd.read_csv(
-    "./symptom_Description.csv")
+    "./disease_Description.csv")
 
 # %%
 discrp.head()
 
 # %%
 ektra7at = pd.read_csv(
-    "./symptom_precaution.csv")
+    "./disease_precaution.csv")
 
 # %%
 ektra7at.head()
@@ -375,6 +378,7 @@ def predict():
             response.headers.add(
                 "Access-Control-Allow-Headers", "Content-Type, Authorization")
             response.headers.add("Access-Control-Allow-Methods", "POST")
+            response.headers['Referrer-Policy'] = 'same-origin'
             return response
         except Exception as e:
             return jsonify({"error": str(e)}), 500
@@ -394,7 +398,9 @@ data_list = data.to_dict(orient='records')
 
 @app.route('/symptoms', methods=['GET'])
 def get_data():
-    return jsonify(data_list)
+    response = jsonify(data_list)
+    response.headers['Referrer-Policy'] = 'same-origin'
+    return response
 
 
 if __name__ == "__main__":

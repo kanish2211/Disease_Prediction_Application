@@ -1,0 +1,128 @@
+/* styles.css */
+.navbar {
+    background-color: #007BFF;
+    padding: 10px;
+    text-align: center;;
+    height:90px
+  }
+  
+  .nav-list {
+    list-style: none;
+    padding: 10px 0;
+    font-size:24px;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif ;
+  }
+  
+  .nav-item {
+    display: inline;
+    margin: 0 20px;
+  }
+  
+  .nav-item a {
+    color: white;
+    text-decoration: none;
+  }
+  
+  .nav-item a:hover {
+    color:#adc7e3
+  }
+  .nav-item a::selection {
+    color:#adc7e3
+  }
+  
+  .title {
+    font-size: 36px;
+    font-weight: bold;
+    color: #007BFF;
+  }
+  /* styles.css */
+.home-container {
+    padding: 20px;
+   
+  }
+  
+  .header {
+    text-align: center;
+    margin: 30px 0;
+  }
+  
+  .title {
+    font-size: 36px;
+    font-weight: bold;
+    color: #007BFF;
+  }
+  
+  .subtitle {
+    font-size: 20px;
+    color: #555;
+  }
+  
+  .content {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+  }
+  
+  .info-card {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 20px;
+    margin: 10px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+    width:100%
+  }
+  .news-card{
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 20px;
+    margin: 50px auto;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+    width:60%
+  }
+  .news-title {
+    color: blue;
+    text-decoration: none; /* Remove underline */
+    font-size: x-large;
+    font-weight: 600;
+}
+
+/* Hover state */
+.news-title:hover {
+    color: red; /* Change the color on hover (optional) */
+}
+
+/* Active/Clicked state */
+.news-title:active {
+    color: purple;
+}
+.news-desc {
+    width:100%; /* Adjust the width as needed */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+  
+  .info-title {
+    font-size: 24px;
+    color: #007BFF;
+    margin-bottom: 10px;
+  }
+  .nav-item.active {
+    background-color: #007bff; /* Change this to your desired active background color */
+    color: #fff; /* Change this to your desired active text color */
+  }
+  
+  
+  .info-text {
+    font-size: 16px;
+    color: #333;
+  }
+  
+  .info-card:hover {
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  
