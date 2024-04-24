@@ -4,6 +4,7 @@ from sklearn.metrics import f1_score, accuracy_score, confusion_matrix, classifi
 from sklearn.ensemble import RandomForestClassifier
 from flask import Flask, request, jsonify, make_response
 import joblib
+from pymongo import MongoClient
 import pandas as pd
 import numpy as np
 from flask_cors import CORS
@@ -23,9 +24,10 @@ from sklearn.tree import DecisionTreeClassifier
 
 app = Flask(__name__, static_url_path='',
             static_folder='static')
-CORS(app, resources={
-     r"/api/*": {"origins": "http://localhost:3000"}})
-
+CORS(app)
+client = MongoClient('mongodb://localhost:27017/')
+db = client['Disease_prediction_system']
+collection = db['details']
 
 # %%
 df = pd.read_csv(
@@ -378,7 +380,7 @@ def predict():
             response.headers.add(
                 "Access-Control-Allow-Headers", "Content-Type, Authorization")
             response.headers.add("Access-Control-Allow-Methods", "POST")
-            response.headers['Referrer-Policy'] = 'same-origin'
+            # response.headers['Referrer-Policy'] = 'same-origin'
             return response
         except Exception as e:
             return jsonify({"error": str(e)}), 500
@@ -401,6 +403,90 @@ def get_data():
     response = jsonify(data_list)
     response.headers['Referrer-Policy'] = 'same-origin'
     return response
+
+@app.route('/user-details', methods=['GET'])
+def get_user_details():
+    email = request.args.get('email')
+   
+    if not email:
+        return jsonify({"error": "Email parameter is required"}), 400
+
+    user = collection.find_one({"email": email})
+    if user:
+        # Exclude MongoDB _id field from response
+        user.pop('_id', None)
+        return jsonify(user)
+    else:
+        return jsonify({"error": "User not found"}), 404
+
+@app.route('/signup', methods=['POST'])
+def signup():
+    data = request.json
+    name = data.get('name')
+    password = data.get('password')
+    gender = data.get('gender')
+    dateOfBirth = data.get('dateOfBirth')
+    email = data.get('email')
+    phnumber = data.get('phnumber')
+
+    user = {
+        "name": name,
+        "password": password,
+        "gender": gender,
+        "dateOfBirth":dateOfBirth,
+        "email": email,
+        "phnumber": phnumber
+    }
+
+    # Insert user document into MongoDB
+    collection.insert_one(user)
+
+    # Respond with success message
+    return jsonify({"message": "Signup successful"}), 200
+
+@app.route('/medical-details', methods=['POST'])
+def submit_medical_details():
+    data = request.get_json()
+    email = data.get('email')
+
+    if not email:
+        return jsonify({"error": "Email parameter is required"}), 400
+
+    user = collection.find_one({"email": email})
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    # Update the existing user's data with additional fields
+    updated_data = {
+        "weight": data.get("weight"),
+        "height": data.get("height"),
+        "bloodPressure": data.get("bloodPressure"),
+        "allergies": data.get("allergies"),
+        "medications": data.get("medications"),
+        "medicalConditions": data.get("medicalConditions"),
+        "diabetes": data.get("diabetes"),
+        "hypertension": data.get("hypertension"),
+        "hypotension": data.get("hypotension"),
+        "nearSightedness": data.get("nearSightedness"),
+        "fatigue": data.get("fatigue")
+    }
+
+    # Update the user's data in the database
+    collection.update_one({"email": email}, {"$set": updated_data})
+
+    return jsonify({"message": "Medical details updated successfully"})
+     
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    email = data['email']
+    password = data['password']
+    user = collection.find_one({"email": email, "password": password})
+    if user:
+        return jsonify({"message": "Login successful"})
+    else:
+        return jsonify({"message": "Login failed"})
 
 
 if __name__ == "__main__":

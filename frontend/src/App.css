@@ -37,3 +37,14 @@
     transform: rotate(360deg);
   }
 }
+
+input:focus {
+  outline:none;
+}
+
+.input-field:focus {
+  border-color: inherit;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  background: green;
+}
