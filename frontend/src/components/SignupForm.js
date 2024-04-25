@@ -1,43 +1,69 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import InputError from "./InputError";
+
+const passwordRules = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+const phoneNumberPattern = /^[6-9]\d{9}$/;
+
+const schema = yup
+  .object({
+    name: yup
+      .string()
+      .min(4, "Name should have minimum 4 characters")
+      .required(),
+    email: yup.string().email().required(),
+    password: yup
+      .string()
+      .matches(passwordRules, {
+        message:
+          "password must contain 8 or more characters with at least one of each: uppercase, lowercase, number",
+      })
+      .required(),
+    confirmPassword: yup
+      .string()
+      .matches(passwordRules, {
+        message:
+          "Password must contain 8 or more characters with at least one of each: uppercase, lowercase, number",
+      })
+      .oneOf([yup.ref("password"), null], "Passwords must match")
+      .required(),
+    gender: yup.string().required(),
+    phoneNumber: yup
+      .string()
+      .matches(phoneNumberPattern, "Please enter a valid mobile number")
+      .required(),
+    dateOfBirth: yup.date().required(),
+  })
+  .required();
 
 const SignupForm = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    gender: "",
-    dateOfBirth: "",
-    phnumber: "",
-    error: "",
-  });
   const navigate = useNavigate();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
+  const [error, setError] = useState("");
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const { password, confirmPassword, email, ...data } = formData;
-    if (password !== confirmPassword) {
-      setFormData({ ...formData, error: "Passwords do not match" });
-      return;
-    }
+  const submitForm = async (data) => {
     try {
+      console.log("data", data);
       await axios.post(
         "http://localhost:5000/signup",
-        { ...data, email },
+        { ...data },
         { headers: { "Content-Type": "application/json" } }
       );
-      sessionStorage.setItem("email", email);
+      sessionStorage.setItem("email", data.email);
       navigate("/health-details");
     } catch (error) {
       console.error("Signup failed:", error);
-      setFormData({ ...formData, error: "Signup failed. Please try again." });
+      setError("Signup failed. Please try again.");
     }
   };
 
@@ -57,51 +83,41 @@ const SignupForm = () => {
         </div>
 
         <form
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmit(submitForm)}
           className="w-[48%] my-auto max-w-[620px] ml-2"
         >
           <input
             type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
+            {...register("name")}
             placeholder="Name"
-            required
             className="input block w-full my-6"
           />
+          <InputError>{errors.name?.message}</InputError>
           <input
             type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
+            {...register("email")}
             placeholder="Email"
-            required
             className="input block w-full my-6"
           />
+          <InputError>{errors.email?.message}</InputError>
           <input
             type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
+            {...register("password")}
             placeholder="Password"
-            required
             className="input block w-full my-6"
           />
+          <InputError>{errors.password?.message}</InputError>
           <input
             type="password"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
+            {...register("confirmPassword")}
             placeholder="Confirm Password"
-            required
             className="input block w-full my-6"
           />
+          <InputError>{errors.confirmPassword?.message}</InputError>
           <div className="flex justify-between w-full my-6">
             <select
               name="gender"
-              value={formData.gender}
-              onChange={handleChange}
-              required
+              {...register("gender")}
               className="input block w-[48%]"
             >
               <option value="">Select Gender</option>
@@ -110,33 +126,30 @@ const SignupForm = () => {
               <option value="Others">Others</option>
               <option value="Prefer not to say">Prefer not to say</option>
             </select>
+            <InputError>{errors.gender?.message}</InputError>
             <input
               type="date"
-              name="dateOfBirth"
-              value={formData.dateOfBirth}
-              onChange={handleChange}
+              {...register("dateOfBirth")}
               placeholder="Date of Birth"
-              required
               className="input block  w-[48%] "
             />
+            <InputError>{errors.dateOfBirth?.message}</InputError>
           </div>
 
           <input
             type="tel"
-            name="phnumber"
-            value={formData.phnumber}
-            onChange={handleChange}
+            {...register("phoneNumber")}
             placeholder="Phone Number"
-            required
             className="input block w-full my-6"
           />
+          <InputError>{errors.phoneNumber?.message}</InputError>
           <button
             type="submit"
             className="btn bg-[#14bbcb] block w-6/12 mt-9 mb-4 mx-auto font-bold"
           >
             REGISTER
           </button>
-          {formData.error && <p>{formData.error}</p>}
+          {error && <InputError>{error}</InputError>}
           <div className="text-center text-[#14bbcb]">
             <p>or</p>
             <Link to="/login">
