@@ -7,18 +7,18 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import InputError from "./InputError";
 
-const passwordRules = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+const loginPasswordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
 
-const schema = yup
+const loginValidationSchema = yup
   .object({
-    email: yup.string().email().required(),
+    email: yup.string().email().required("Please enter your email"),
     password: yup
       .string()
-      .matches(passwordRules, {
+      .matches(loginPasswordRegex, {
         message:
-          "password must contain 8 or more characters with at least one of each: uppercase, lowercase, number",
+          "Password must contain 8 or more characters with at least one of each: uppercase, lowercase, number",
       })
-      .required(),
+      .required("Please enter your password"),
   })
   .required();
 
@@ -30,7 +30,7 @@ const LoginForm = () => {
     handleSubmit,
     formState: { errors },
   } = useForm({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(loginValidationSchema),
   });
 
   const sumbitForm = async (data) => {
@@ -76,24 +76,18 @@ const LoginForm = () => {
         >
           <input
             type="text"
-            // value={email}
-            // onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
-            // required
             className="input block  w-full my-6"
             {...register("email")}
           />
-          <InputError>{errors.email?.message}</InputError>
+          <InputError message={errors.email?.message} />
           <input
             type="password"
-            // value={password}
-            // onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
-            // required
             className="input block  w-full  my-6 "
             {...register("password")}
           />
-          <InputError>{errors.password?.message}</InputError>
+          <InputError message={errors.password?.message} />
           <button
             type="submit"
             className="btn bg-[#14bbcb] block  w-6/12  mt-9 mb-4  mx-auto font-bold"

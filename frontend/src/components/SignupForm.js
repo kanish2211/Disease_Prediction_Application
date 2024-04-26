@@ -6,37 +6,37 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import InputError from "./InputError";
 
-const passwordRules = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+const signupPassRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
 const phoneNumberPattern = /^[6-9]\d{9}$/;
 
-const schema = yup
+const signupValidationSchema = yup
   .object({
     name: yup
       .string()
       .min(4, "Name should have minimum 4 characters")
-      .required(),
-    email: yup.string().email().required(),
+      .required("Please enter your name"),
+    email: yup.string().email().required("Please enter your email"),
     password: yup
       .string()
-      .matches(passwordRules, {
+      .matches(signupPassRegex, {
         message:
-          "password must contain 8 or more characters with at least one of each: uppercase, lowercase, number",
+          "Password must contain 8 or more characters with at least one of each: uppercase, lowercase, number",
       })
-      .required(),
+      .required("Please enter your password"),
     confirmPassword: yup
       .string()
-      .matches(passwordRules, {
+      .matches(signupPassRegex, {
         message:
           "Password must contain 8 or more characters with at least one of each: uppercase, lowercase, number",
       })
       .oneOf([yup.ref("password"), null], "Passwords must match")
-      .required(),
-    gender: yup.string().required(),
+      .required("Please enter your password again to confirm"),
+    gender: yup.string().required("Please select your gender"),
     phoneNumber: yup
       .string()
       .matches(phoneNumberPattern, "Please enter a valid mobile number")
       .required(),
-    dateOfBirth: yup.date().required(),
+    dateOfBirth: yup.date().required("Please select your DOB"),
   })
   .required();
 
@@ -47,7 +47,7 @@ const SignupForm = () => {
     handleSubmit,
     formState: { errors },
   } = useForm({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(signupValidationSchema),
   });
   const [error, setError] = useState("");
 
@@ -56,7 +56,15 @@ const SignupForm = () => {
       console.log("data", data);
       await axios.post(
         "http://localhost:5000/signup",
-        { ...data },
+        {
+          name: data.name,
+          email: data.email,
+          password: data.password,
+          confirmPassword: data.confirmPassword,
+          gender: data.gender,
+          dateOfBirth: data.dateOfBirth,
+          phnumber: data.phoneNumber,
+        },
         { headers: { "Content-Type": "application/json" } }
       );
       sessionStorage.setItem("email", data.email);
@@ -92,28 +100,28 @@ const SignupForm = () => {
             placeholder="Name"
             className="input block w-full my-6"
           />
-          <InputError>{errors.name?.message}</InputError>
+          <InputError message={errors.name?.message} />
           <input
             type="email"
             {...register("email")}
             placeholder="Email"
             className="input block w-full my-6"
           />
-          <InputError>{errors.email?.message}</InputError>
+          <InputError message={errors.email?.message} />
           <input
             type="password"
             {...register("password")}
             placeholder="Password"
             className="input block w-full my-6"
           />
-          <InputError>{errors.password?.message}</InputError>
+          <InputError message={errors.password?.message} />
           <input
             type="password"
             {...register("confirmPassword")}
             placeholder="Confirm Password"
             className="input block w-full my-6"
           />
-          <InputError>{errors.confirmPassword?.message}</InputError>
+          <InputError message={errors.confirmPassword?.message} />
           <div className="flex justify-between w-full my-6">
             <select
               name="gender"
@@ -126,30 +134,29 @@ const SignupForm = () => {
               <option value="Others">Others</option>
               <option value="Prefer not to say">Prefer not to say</option>
             </select>
-            <InputError>{errors.gender?.message}</InputError>
             <input
               type="date"
               {...register("dateOfBirth")}
               placeholder="Date of Birth"
               className="input block  w-[48%] "
             />
-            <InputError>{errors.dateOfBirth?.message}</InputError>
           </div>
-
+          <InputError message={errors.gender?.message} />
+          <InputError message={errors.dateOfBirth?.message} />
           <input
             type="tel"
             {...register("phoneNumber")}
             placeholder="Phone Number"
             className="input block w-full my-6"
           />
-          <InputError>{errors.phoneNumber?.message}</InputError>
+          <InputError message={errors.phoneNumber?.message} />
           <button
             type="submit"
             className="btn bg-[#14bbcb] block w-6/12 mt-9 mb-4 mx-auto font-bold"
           >
             REGISTER
           </button>
-          {error && <InputError>{error}</InputError>}
+          {error && <InputError message={error} />}
           <div className="text-center text-[#14bbcb]">
             <p>or</p>
             <Link to="/login">

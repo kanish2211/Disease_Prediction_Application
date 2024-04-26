@@ -3,7 +3,7 @@ import React from "react";
 import Navbar from "./Navbar";
 import { Link } from "react-router-dom";
 
-const MissionVissio = () => {
+const MissionVission = () => {
   return (
     <div className="home-container">
       <div className="header">
@@ -47,4 +47,4 @@ const MissionVissio = () => {
   );
 };
 
-export default MissionVissio;
+export default MissionVission;
