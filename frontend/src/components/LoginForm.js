@@ -2,18 +2,53 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import InputError from "./InputError";
+
+const loginPasswordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+
+const loginValidationSchema = yup
+  .object({
+    email: yup.string().email().required("Please enter your email"),
+    password: yup
+      .string()
+      .matches(loginPasswordRegex, {
+        message:
+          "Password must contain 8 or more characters with at least one of each: uppercase, lowercase, number",
+      })
+      .required("Please enter your password"),
+  })
+  .required();
 
 const LoginForm = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate(); // Hook for navigation
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(loginValidationSchema),
+  });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const sumbitForm = async (data) => {
     try {
-      await axios.post("http://localhost:5000/login", { email, password });
-      sessionStorage.setItem("email", email);
+      console.log("data: ", data);
+      await axios.post(
+        "http://localhost:5000/login",
+        {
+          email: data.email,
+          password: data.password,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      sessionStorage.setItem("email", data.email);
       navigate("/home");
     } catch (error) {
       console.error("Login failed:", error);
@@ -36,25 +71,23 @@ const LoginForm = () => {
           />
         </div>
         <form
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmit(sumbitForm)}
           className=" w-[48%] my-auto max-w-[620px] ml-2  "
         >
           <input
             type="text"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
-            required
             className="input block  w-full my-6"
+            {...register("email")}
           />
+          <InputError message={errors.email?.message} />
           <input
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
-            required
             className="input block  w-full  my-6 "
+            {...register("password")}
           />
+          <InputError message={errors.password?.message} />
           <button
             type="submit"
             className="btn bg-[#14bbcb] block  w-6/12  mt-9 mb-4  mx-auto font-bold"
