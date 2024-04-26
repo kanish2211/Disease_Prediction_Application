@@ -12,6 +12,12 @@ import LandingPage from "./components/LandingPage";
 import PreLoginNavbar from "./components/preLoginNavBar";
 import Footer from "./components/Footer";
 import DoctorConsultation from "./components/DoctorConsultation";
+import Thankyou from "./components/ecom/ThankYou";
+import Checkout from "./components/ecom/Checkout";
+import OrderHistory from "./components/ecom/OrderHistory";
+import Cart from "./components/ecom/Cart";
+import SingleProductPage from "./components/ecom/SingleProductPage";
+import Medicine from "./components/ecom/Medicine";
 
 const LoggedInLayout = ({ children }) => (
   <>
@@ -100,6 +106,12 @@ function App() {
                   </Layout>
                 }
               />
+              <Route path="/medicines" element={<Medicine />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/orderhistory" element={<OrderHistory />} />
+              <Route path="/thankyou" element={<Thankyou />} />
+              <Route path="/:id" element={<SingleProductPage />}></Route>
             </>
           )}
         </Routes>
