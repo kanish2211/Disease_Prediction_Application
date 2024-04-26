@@ -4,64 +4,61 @@ import Home from "./components/Home";
 import Prediction from "./components/Prediction";
 import Navbar from "./components/Navbar";
 import BlogList from "./components/Blogs";
-import MissionVissio from "./components/MissionVision";
+import MissionVission from "./components/MissionVision";
 import SignupForm from "./components/SignupForm";
 import LoginForm from "./components/LoginForm";
-import axios from "axios";
 import HealthDetails from "./components/HealthDetails";
 import LandingPage from "./components/LandingPage";
 import PreLoginNavbar from "./components/preLoginNavBar";
 import Footer from "./components/Footer";
 import DoctorConsultation from "./components/DoctorConsultation";
 
-const Layout = ({ children }) => (
+const LoggedInLayout = ({ children }) => (
   <>
     <Navbar />
     {children}
   </>
 );
 
-const Layout2 = ({ children }) => (
+const PreLoginLayout = ({ children }) => (
   <>
     <PreLoginNavbar />
     {children}
   </>
 );
 
+const Layout = ({ children }) => {
+  console.log("email", sessionStorage.getItem("email"));
+  return (
+    <>
+      {sessionStorage.getItem("email") == null ? (
+        <PreLoginLayout />
+      ) : (
+        <LoggedInLayout />
+      )}
+      {children}
+    </>
+  );
+};
+
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  // Function to handle login
-  const handleLogin = () => {
-    // Your login logic here
-    setIsLoggedIn(true);
-  };
-
-  // Function to handle logout
-  const handleLogout = () => {
-    // Your logout logic here
-    setIsLoggedIn(false);
-  };
-
+  const isLoggedIn = sessionStorage.getItem("email") != null;
   return (
     <div className="bg-gray-100">
       <Router>
         <Routes>
-          <Route
-            path="/login"
-            element={<LoginForm handleLogin={handleLogin} />}
-          />
+          <Route path="/login" element={<LoginForm />} />
           <Route path="/signup" element={<SignupForm />} />
           <Route path="/health-details" element={<HealthDetails />} />
           <Route
             path="/"
             element={
-              <Layout2>
+              <Layout>
                 <LandingPage />
-              </Layout2>
+              </Layout>
             }
           />
-          {true && (
+          {isLoggedIn && (
             <>
               <Route
                 path="/home"
@@ -91,7 +88,7 @@ function App() {
                 path="/mission"
                 element={
                   <Layout>
-                    <MissionVissio />
+                    <MissionVission />
                   </Layout>
                 }
               />
