@@ -17,7 +17,7 @@ import Checkout from "./components/ecom/Checkout";
 import OrderHistory from "./components/ecom/OrderHistory";
 import Cart from "./components/ecom/Cart";
 import SingleProductPage from "./components/ecom/SingleProductPage";
-import Medicine from "./components/ecom/Medicine";
+import Medicines from "./components/ecom/Medicine";
 
 const LoggedInLayout = ({ children }) => (
   <>
@@ -105,14 +105,21 @@ function App() {
                   </Layout>
                 }
               />
-              <Route path="/medicines" element={<Medicine />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/orderhistory" element={<OrderHistory />} />
-              <Route path="/thankyou" element={<Thankyou />} />
-              <Route path="/:id" element={<SingleProductPage />}></Route>
             </>
           )}
+          <Route
+            path="/medicines"
+            element={
+              <Layout>
+                <Medicines />
+              </Layout>
+            }
+          />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/orderhistory" element={<OrderHistory />} />
+          <Route path="/thankyou" element={<Thankyou />} />
+          <Route path="/:id" element={<SingleProductPage />}></Route>
         </Routes>
       </Router>
       <Footer />
