@@ -398,6 +398,51 @@ except FileNotFoundError:
 data_list = data.to_dict(orient='records')
 
 
+
+doctors_data = pd.read_csv('./archive/doctor.csv')
+
+@app.route('/doctors', methods=['GET'])
+def get_doctors():
+    location = request.args.get('location')
+    specialty = request.args.get('specialty')
+    
+    # Filter doctors based on location and specialty
+    filtered_doctors = doctors_data.copy()  # Create a copy of the DataFrame
+    if location:
+        filtered_doctors = filtered_doctors[filtered_doctors['Location'].str.lower().str.contains(location.lower())]
+    if specialty:
+        filtered_doctors = filtered_doctors[filtered_doctors['Speciality'].str.lower().str.contains(specialty.lower())]
+    
+    # Convert filtered DataFrame to a list of dictionaries
+    filtered_doctors_list = filtered_doctors.to_dict(orient='records')
+    
+    return jsonify(filtered_doctors_list)
+
+
+@app.route('/location-splty-data', methods=['GET'])
+def get_dep_splty_data():
+    unique_locations = doctors_data['Location'].unique().tolist()
+    
+    # Define a function to process the Speciality column
+    def process_specialty(specialties):
+        if isinstance(specialties, str):  # Check if the value is a string
+            return [specialty.strip() for specialty in specialties.split(',')]
+        else:
+            return []  # Return an empty list for non-string values
+    
+    # Apply the function to each value in the Speciality column
+    specialties_list = doctors_data['Speciality'].apply(process_specialty)
+    
+    # Flatten the list of lists and remove duplicates
+    unique_specialties = list(set([specialty for sublist in specialties_list for specialty in sublist]))
+    
+    return jsonify({
+        'locations': unique_locations,
+        'specialties': unique_specialties
+    })
+
+
+
 @app.route('/symptoms', methods=['GET'])
 def get_data():
     response = jsonify(data_list)

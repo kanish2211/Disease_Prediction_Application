@@ -49,7 +49,7 @@ const LoginForm = () => {
         }
       );
       sessionStorage.setItem("email", data.email);
-      navigate("/home");
+      navigate("/");
     } catch (error) {
       console.error("Login failed:", error);
       setError("Signup failed. Please try again.");

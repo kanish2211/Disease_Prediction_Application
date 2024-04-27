@@ -1,59 +1,67 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DoctorProfile from "./DoctorProfile";
+import Select from "react-select";
 
 const DoctorConsultation = () => {
-  const [selectedDepartment, setSelectedDepartment] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState("");
+  const [selectedDepartment, setSelectedDepartment] = useState(null);
+  const [selectedLocation, setSelectedLocation] = useState(null);
   const [doctors, setDoctors] = useState([]);
   const [searchClicked, setSearchClicked] = useState(false);
+  const [departments, setDepartments] = useState([]);
+  const [locations, setLocations] = useState([]);
 
-  // Function to handle department selection
-  const handleDepartmentSelect = (event) => {
-    setSelectedDepartment(event.target.value);
+  useEffect(() => {
+    fetchLocationSpltyData();
+  }, []);
+
+  const fetchLocationSpltyData = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/location-splty-data");
+      if (!response.ok) {
+        throw new Error("Failed to fetch location and specialty data");
+      }
+      const data = await response.json();
+      setDepartments(
+        data.specialties.map((specialty) => ({
+          value: specialty,
+          label: specialty,
+        }))
+      );
+      setLocations(
+        data.locations.map((location) => ({ value: location, label: location }))
+      );
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  // Function to handle location selection
-  const handleLocationSelect = (event) => {
-    setSelectedLocation(event.target.value);
+  const fetchDoctors = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/doctors?location=${selectedLocation}&specialty=${selectedDepartment}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch doctors");
+      }
+      const data = await response.json();
+      setDoctors(data);
+    } catch (error) {
+      console.error(error);
+      setDoctors([]);
+    }
   };
 
-  // Function to handle search button click
+  const handleDepartmentChange = (selectedOption) => {
+    setSelectedDepartment(selectedOption);
+  };
+
+  const handleLocationChange = (selectedOption) => {
+    setSelectedLocation(selectedOption);
+  };
+
   const handleSearchClick = () => {
     setSearchClicked(true);
-    fetchDoctors(selectedDepartment, selectedLocation);
-  };
-
-  // Function to fetch doctors data
-  const fetchDoctors = (department, location) => {
-    // For demonstration purpose, using dummy data
-    // Replace this with your actual API call
-    const dummyDoctors = [
-      {
-        id: 1,
-        name: "Dr. John Doe",
-        department: "Gynaecology",
-        ratings: "4.5",
-        hospital: "ABC Hospital",
-        location: "New York",
-      },
-      {
-        id: 2,
-        name: "Dr. Jane Smith",
-        department: "Cardiology",
-        ratings: "4.8",
-        hospital: "XYZ Hospital",
-        location: "Los Angeles",
-      },
-      // Add more dummy data for other departments
-    ];
-
-    // Filter doctors based on selected department and location
-    const filteredDoctors = dummyDoctors.filter(
-      (doctor) =>
-        (!department || doctor.department === department) &&
-        (!location || doctor.location === location)
-    );
-    setDoctors(filteredDoctors);
+    fetchDoctors();
   };
 
   return (
@@ -61,16 +69,14 @@ const DoctorConsultation = () => {
       <h2>Doctor Consultation Appointment Maker</h2>
       <div style={{ backgroundColor: "#8EBAF1", padding: "10px" }}>
         <label htmlFor="department">Select Department:</label>
-        <select
+        <Select
           id="department"
           value={selectedDepartment}
-          onChange={handleDepartmentSelect}
-        >
-          <option value="">Select</option>
-          <option value="Gynaecology">Gynaecology</option>
-          <option value="Cardiology">Cardiology</option>
-          {/* Add options for other departments */}
-        </select>
+          onChange={handleDepartmentChange}
+          options={departments}
+          isClearable
+          placeholder="Select Department"
+        />
       </div>
       <div
         style={{
@@ -80,13 +86,13 @@ const DoctorConsultation = () => {
         }}
       >
         <label htmlFor="location">Select Location:</label>
-        <input
-          type="text"
+        <Select
           id="location"
           value={selectedLocation}
-          onChange={handleLocationSelect}
-          placeholder="Enter Location"
-          style={{ marginLeft: "10px" }}
+          onChange={handleLocationChange}
+          options={locations}
+          isClearable
+          placeholder="Select Location"
         />
       </div>
       <button
@@ -109,7 +115,7 @@ const DoctorConsultation = () => {
         }}
       >
         <h3>Doctors</h3>
-        {searchClicked && doctors.length === 0 ? (
+        {doctors.length === 0 && searchClicked ? (
           <p>No doctors found</p>
         ) : (
           doctors.map((doctor) => (
