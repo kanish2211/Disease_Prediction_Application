@@ -63,7 +63,11 @@ const Navbar = () => {
                   <li>
                     <Link to="/blogs">Blogs</Link>
                   </li>
-                  <li>
+                  <li
+                    onTouchEnd={() => {
+                      sessionStorage.removeItem("email");
+                    }}
+                  >
                     <Link to="/login">Signout</Link>
                   </li>
                 </ul>

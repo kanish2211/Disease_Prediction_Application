@@ -11,7 +11,7 @@ const LandingPage = () => {
         "Wondering what those symptoms might mean? Say no more. With healWell's advanced algorithms, simply input your symptoms, and let the application analyze and predict potential diseases. Get insights and recommendations tailored to your specific health concerns, allowing you to take proactive steps towards better health.",
       image: "assets/images/predict.png",
       blurText: "Predict Disease",
-      navigate: "/login",
+      navigate: "/prediction",
       color: "#EE9C6F",
     },
     {
@@ -20,7 +20,7 @@ const LandingPage = () => {
         "Skip the hassle of visiting multiple pharmacies. healWell's integrated e-commerce platform allows you to purchase medicines with ease. Whether it's a prescription refill or over-the-counter essentials, find everything you need at your fingertips. Enjoy the convenience of doorstep delivery, ensuring you never miss a dose.",
       blurText: "Buy Medicines",
       image: "assets/images/medicine.png",
-      navigate: "/login",
+      navigate: "/medicines",
       color: "#8EBAF1",
     },
     {
@@ -28,7 +28,7 @@ const LandingPage = () => {
       subtext:
         "Need professional advice without leaving your home? healWell connects you with qualified doctors for virtual consultations. Discuss your health concerns, receive personalized guidance, and obtain prescriptions all within the comfort of your own space. Say goodbye to long waiting times and hello to efficient, convenient healthcare.",
       blurText: "Consult Doctor",
-      navigate: "/login",
+      navigate: "/doctor-consultation",
       image: "assets/images/consultation.png",
       color: "#14BBCB",
     },
@@ -37,14 +37,18 @@ const LandingPage = () => {
       subtext:
         "Medical blogs and articles from all around the world is curated and brought to you so you can be updated. All the lifestyle articles, healthy habits, new medical researches and what not!",
       blurText: "Read Blogs",
-      navigate: "/login",
+      navigate: "/blogs",
       image: "assets/images/blogs.png",
       color: "#C9C9C7",
     },
   ];
   const navigate = useNavigate();
   const handleOnClick = (value) => {
-    navigate(value);
+    if (sessionStorage.getItem("email") == null) {
+      navigate("/login");
+    } else {
+      navigate(value);
+    }
   };
 
   return (
