@@ -38,16 +38,15 @@ const Navbar = () => {
           <h1 className="text-xl ml-4">HealWell</h1>
         </div>
         <div className="profile flex items-center">
-          <img
+          {/* <img
             src="/assets/profile.jpg"
             alt="Profile"
             className="rounded-full h-8 w-8"
           />
-          <p className="ml-2">Your Name</p>
+          <p className="ml-2">Your Name</p>  */}
           <div className="profile-menu ml-2">
             {isMenuOpen && (
               <div className="menu-dialog bg-gray-800 text-white absolute top-0 left-0 h-screen p-4 z-50 w-2/12">
-                <span>HI User </span>
                 <ul>
                   <li>
                     <Link to="/home">Home</Link>
@@ -56,10 +55,13 @@ const Navbar = () => {
                     <Link to="/meds">Meds</Link>
                   </li>
                   <li>
-                    <Link to="/consult">Consult a Doctor</Link>
+                    <Link to="/doctor-consultation">Consult a Doctor</Link>
                   </li>
                   <li>
-                    <Link to="/predict">Predict a Disease</Link>
+                    <Link to="/prediction">Predict a Disease</Link>
+                  </li>
+                  <li>
+                    <Link to="/blogs">Blogs</Link>
                   </li>
                   <li>
                     <Link to="/login">Signout</Link>

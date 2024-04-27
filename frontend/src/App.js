@@ -28,7 +28,6 @@ const PreLoginLayout = ({ children }) => (
 );
 
 const Layout = ({ children }) => {
-  console.log("email", sessionStorage.getItem("email"));
   return (
     <>
       {sessionStorage.getItem("email") == null ? (
